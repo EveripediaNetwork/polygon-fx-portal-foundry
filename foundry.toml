@@ -1,2 +1,5 @@
-[ci]
-fuzz-runs = 10_000
+[profile.ci]
+fuzz_runs = 256
+
+[profile.default]
+fuzz_runs = 256

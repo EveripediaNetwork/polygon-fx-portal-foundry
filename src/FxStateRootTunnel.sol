@@ -2,20 +2,24 @@
 pragma solidity ^0.8.15;
 
 import {FxBaseRootTunnel} from "fx-portal/tunnel/FxBaseRootTunnel.sol";
+import {iHiIQ} from "./utils/iHiIQ.sol";
 
 /**
  * @title FxStateRootTunnel
  */
 contract FxStateRootTunnel is FxBaseRootTunnel {
-    bytes public latestData;
+    address immutable hiIQ;
 
-    constructor(address _checkpointManager, address _fxRoot) FxBaseRootTunnel(_checkpointManager, _fxRoot) {}
-
-    function _processMessageFromChild(bytes memory data) internal override {
-        latestData = data;
+    constructor(address _checkpointManager, address _fxRoot, address _hiIQ)
+        FxBaseRootTunnel(_checkpointManager, _fxRoot)
+    {
+        hiIQ = _hiIQ;
     }
 
-    function sendMessageToChild(bytes memory message) public {
-        _sendMessageToChild(message);
+    function _processMessageFromChild(bytes memory data) internal override {}
+
+    function sync(address account) external {
+        iHiIQ.LockedBalance memory lock = iHiIQ(hiIQ).locked(account);
+        _sendMessageToChild(abi.encode(account, lock.amount, lock.end));
     }
 }
